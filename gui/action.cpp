@@ -1295,18 +1295,21 @@ int GUIAction::htcdumlockreflashrecovery(std::string arg)
 int GUIAction::cmd(std::string arg)
 {
 	int op_status = 0;
+	std::string result;
 
 	operation_start("Command");
 	LOGINFO("Running command: '%s'\n", arg.c_str());
 	if (simulate) {
 		simulate_progress_bar();
 	} else {
-		op_status = TWFunc::Exec_Cmd(arg);
+		op_status = TWFunc::Exec_Cmd(arg, result);
 		if (op_status != 0)
 			op_status = 1;
 	}
 
 	operation_end(op_status);
+	gui_print("%s\n", result.c_str());
+	LOGINFO("Command output: %s\n", result.c_str());
 	return 0;
 }
 

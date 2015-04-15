@@ -1240,7 +1240,7 @@ bool TWPartition::Repair() {
 		}
 	}
 	if (Current_File_System == "ext2" || Current_File_System == "ext3" || Current_File_System == "ext4") {
-		if (!TWFunc::Path_Exists("/sbin/e2fsck")) {
+		if (!TWFunc::Path_Exists("/sbin/e2fsck") || !TWFunc::Path_Exists("/sbin/e2fsck-wrapper.sh")) {
 			gui_print("e2fsck does not exist! Cannot repair!\n");
 			return false;
 		}
@@ -1248,7 +1248,7 @@ bool TWPartition::Repair() {
 			return false;
 		gui_print("Repairing %s using e2fsck...\n", Display_Name.c_str());
 		Find_Actual_Block_Device();
-		command = "/sbin/e2fsck -fp " + Actual_Block_Device;
+		command = "/sbin/e2fsck-wrapper.sh -fp " + Actual_Block_Device;
 		LOGINFO("Repair command: %s\n", command.c_str());
 		if (TWFunc::Exec_Cmd(command) == 0) {
 			gui_print("Done.\n");

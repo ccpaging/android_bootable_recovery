@@ -1182,11 +1182,12 @@ void PageSet::AddStringResource(std::string resource_source, std::string resourc
 	mResources->AddStringResource(resource_source, resource_name, value);
 }
 
-char* PageManager::LoadFileToBuffer(std::string filename, ZipArchive* package) {
+char* PageManager::LoadFileToBufferImpl(std::string filename, ZipArchive* package) {
 	size_t len;
 	char* buffer = NULL;
 
 	if (!package) {
+		filename = TWRES + filename;
 		// We can try to load the XML directly...
 		LOGINFO("PageManager::LoadFileToBuffer loading filename: '%s' directly\n", filename.c_str());
 		struct stat st;
@@ -1325,6 +1326,27 @@ void PageManager::LoadLanguage(string filename) {
 		free(xmlFile);
 	}
 	PartitionManager.Translate_Partition_Display_Names();
+}
+
+char* PageManager::LoadFileToBuffer(std::string filename, ZipArchive* package) {
+	char *xmlFile;
+	static int twres_len = strlen(TWRES);
+
+	if (filename.substr(0, twres_len) == TWRES) {
+		filename = filename.substr(twres_len);
+	}
+
+	std::string language;
+	DataManager::GetValue("tw_language", language);
+	if (!language.empty() && (xmlFile = LoadFileToBufferImpl(language + "/" + filename, package))) {
+		return xmlFile;
+	}
+
+	if ((xmlFile = LoadFileToBufferImpl(filename, package))) {
+		return xmlFile;
+	}
+
+	return NULL;
 }
 
 int PageManager::LoadPackage(std::string name, std::string package, std::string startpage)

@@ -175,6 +175,7 @@ public:
 	static void AddStringResource(std::string resource_source, std::string resource_name, std::string value);
 
 protected:
+	static char* LoadFileToBufferImpl(std::string filename, ZipArchive* package);
 	static PageSet* FindPackage(std::string name);
 	static void LoadLanguageListDir(std::string dir);
 	static void Translate_Partition(const char* path, const char* resource_name, const char* default_value);

@@ -781,9 +781,6 @@ int PageSet::CheckInclude(ZipArchive* package, xml_document<> *parentDoc)
 	xml_node<>* child;
 	xml_node<>* xmltemplate;
 	xml_node<>* xmlstyle;
-	long len;
-	char* xmlFile = NULL;
-	string filename;
 	xml_document<> *doc = NULL;
 
 	par = parentDoc->first_node("recovery");
@@ -803,52 +800,10 @@ int PageSet::CheckInclude(ZipArchive* package, xml_document<> *parentDoc)
 		if (!attr)
 			break;
 
-		if (!package) {
-			// We can try to load the XML directly...
-			filename = TWRES;
-			filename += attr->value();
-			LOGINFO("PageSet::CheckInclude loading filename: '%s'\n", filename.c_str());
-			struct stat st;
-			if(stat(filename.c_str(),&st) != 0) {
-				LOGERR("Unable to locate '%s'\n", filename.c_str());
-				return -1;
-			}
-
-			len = st.st_size;
-			xmlFile = (char*) malloc(len + 1);
-			if (!xmlFile)
-				return -1;
-
-			int fd = open(filename.c_str(), O_RDONLY);
-			if (fd == -1)
-				return -1;
-
-			read(fd, xmlFile, len);
-			close(fd);
-		} else {
-			filename += attr->value();
-			LOGINFO("PageSet::CheckInclude loading filename: '%s'\n", filename.c_str());
-			const ZipEntry* ui_xml = mzFindZipEntry(package, filename.c_str());
-			if (ui_xml == NULL)
-			{
-				LOGERR("Unable to locate '%s' in zip file\n", filename.c_str());
-				return -1;
-			}
-
-			// Allocate the buffer for the file
-			len = mzGetZipEntryUncompLen(ui_xml);
-			xmlFile = (char*) malloc(len + 1);
-			if (!xmlFile)
-				return -1;
-
-			if (!mzExtractZipEntryToBuffer(package, ui_xml, (unsigned char*) xmlFile))
-			{
-				LOGERR("Unable to extract '%s'\n", filename.c_str());
-				return -1;
-			}
+		char* xmlFile = PageManager::ReadFile(package, attr->value());
+		if (!xmlFile) {
+			return -1;
 		}
-
-		xmlFile[len] = '\0';
 		doc = new xml_document<>();
 		doc->parse<0>(xmlFile);
 
@@ -1144,11 +1099,85 @@ int PageSet::NotifyVarChange(std::string varName, std::string value)
 	return (mCurrentPage ? mCurrentPage->NotifyVarChange(varName, value) : -1);
 }
 
+char *PageManager::ReadFileImpl(ZipArchive *package, std::string filename)
+{
+	char *xmlFile = NULL;
+	long len;
+
+	if (!package) {
+		// We can try to load the XML directly...
+		filename = TWRES + filename;
+		LOGINFO("PageManager::ReadFile loading filename: '%s'\n", filename.c_str());
+		struct stat st;
+		if (stat(filename.c_str(),&st) != 0) {
+			LOGERR("Unable to locate '%s'\n", filename.c_str());
+			goto error;
+		}
+
+		len = st.st_size;
+		xmlFile = (char*) malloc(len + 1);
+		if (!xmlFile)
+			goto error;
+
+		int fd = open(filename.c_str(), O_RDONLY);
+		if (fd == -1)
+			goto error;
+
+		read(fd, xmlFile, len);
+		close(fd);
+	} else {
+		LOGINFO("PageManager::ReadFile loading filename: '%s'\n", filename.c_str());
+		const ZipEntry* zipEntry = mzFindZipEntry(package, filename.c_str());
+		if (zipEntry == NULL)
+		{
+			LOGERR("Unable to locate '%s' in zip file\n", filename.c_str());
+			goto error;
+		}
+
+		// Allocate the buffer for the file
+		len = mzGetZipEntryUncompLen(zipEntry);
+		xmlFile = (char*) malloc(len + 1);
+		if (!xmlFile)
+			goto error;
+
+		if (!mzExtractZipEntryToBuffer(package, zipEntry, (unsigned char*) xmlFile))
+		{
+			LOGERR("Unable to extract '%s'\n", filename.c_str());
+			goto error;
+		}
+	}
+
+	xmlFile[len] = '\0';
+	return xmlFile;
+
+error:
+	if (xmlFile) {
+		free(xmlFile);
+	}
+	return NULL;
+}
+
+char *PageManager::ReadFile(ZipArchive* package, std::string filename)
+{
+	char *xmlFile;
+
+	std::string language;
+	DataManager::GetValue("tw_language", language);
+	if (!language.empty() && (xmlFile = ReadFileImpl(package, language + "/" + filename))) {
+		return xmlFile;
+	}
+
+	if ((xmlFile = ReadFileImpl(package, filename))) {
+		return xmlFile;
+	}
+
+	return NULL;
+}
+
 int PageManager::LoadPackage(std::string name, std::string package, std::string startpage)
 {
 	int fd;
 	ZipArchive zip, *pZip = NULL;
-	long len;
 	char* xmlFile = NULL;
 	PageSet* pageSet = NULL;
 	int ret;
@@ -1162,21 +1191,10 @@ int PageManager::LoadPackage(std::string name, std::string package, std::string 
 		tw_x_offset = TW_X_OFFSET;
 		tw_y_offset = TW_Y_OFFSET;
 		// We can try to load the XML directly...
-		struct stat st;
-		if(stat(package.c_str(),&st) != 0)
-			return -1;
-
-		len = st.st_size;
-		xmlFile = (char*) malloc(len + 1);
-		if (!xmlFile)
-			return -1;
-
-		fd = open(package.c_str(), O_RDONLY);
-		if (fd == -1)
+		xmlFile = ReadFile(NULL, package);
+		if (!xmlFile) {
 			goto error;
-
-		read(fd, xmlFile, len);
-		close(fd);
+		}
 	}
 	else
 	{
@@ -1195,28 +1213,11 @@ int PageManager::LoadPackage(std::string name, std::string package, std::string 
 			return -1;
 		}
 		pZip = &zip;
-		const ZipEntry* ui_xml = mzFindZipEntry(&zip, "ui.xml");
-		if (ui_xml == NULL)
-		{
-			LOGERR("Unable to locate ui.xml in zip file\n");
-			goto error;
-		}
-
-		// Allocate the buffer for the file
-		len = mzGetZipEntryUncompLen(ui_xml);
-		xmlFile = (char*) malloc(len + 1);
-		if (!xmlFile)
-			goto error;
-
-		if (!mzExtractZipEntryToBuffer(&zip, ui_xml, (unsigned char*) xmlFile))
-		{
-			LOGERR("Unable to extract ui.xml\n");
+		xmlFile = ReadFile(pZip, "ui.xml");
+		if (!xmlFile) {
 			goto error;
 		}
 	}
-
-	// NULL-terminate the string
-	xmlFile[len] = 0x00;
 
 	// Before loading, mCurrentSet must be the loading package so we can find resources
 	pageSet = mCurrentSet;

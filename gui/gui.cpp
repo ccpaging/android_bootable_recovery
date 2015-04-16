@@ -824,7 +824,7 @@ extern "C" int gui_loadResources(void)
 
 	if (check)
 	{
-		if (PageManager::LoadPackage("TWRP", TWRES "ui.xml", "decrypt"))
+		if (PageManager::LoadPackage("TWRP", "ui.xml", "decrypt"))
 		{
 			LOGERR("Failed to load base packages.\n");
 			goto error;
@@ -859,7 +859,7 @@ extern "C" int gui_loadResources(void)
 		if (check || PageManager::LoadPackage("TWRP", theme_path, "main"))
 		{
 #endif // ifndef TW_OEM_BUILD
-			if (PageManager::LoadPackage("TWRP", TWRES "ui.xml", "main"))
+			if (PageManager::LoadPackage("TWRP", "ui.xml", "main"))
 			{
 				LOGERR("Failed to load base packages.\n");
 				goto error;
@@ -895,7 +895,7 @@ extern "C" int gui_loadCustomResources(void)
 		// There is a custom theme, try to load it
 		if (PageManager::ReloadPackage("TWRP", theme_path)) {
 			// Custom theme failed to load, try to load stock theme
-			if (PageManager::ReloadPackage("TWRP", TWRES "ui.xml")) {
+			if (PageManager::ReloadPackage("TWRP", "ui.xml")) {
 				LOGERR("Failed to load base packages.\n");
 				goto error;
 			}

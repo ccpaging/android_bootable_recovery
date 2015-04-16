@@ -556,7 +556,7 @@ int GUIAction::reload(std::string arg)
 	{
 		// Loading the custom theme failed - try loading the stock theme
 		LOGINFO("Attempting to reload stock theme...\n");
-		if (PageManager::ReloadPackage("TWRP", TWRES "ui.xml"))
+		if (PageManager::ReloadPackage("TWRP", "ui.xml"))
 		{
 			LOGERR("Failed to load base packages.\n");
 			ret_val = 1;

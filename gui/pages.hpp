@@ -123,6 +123,7 @@ class PageManager
 {
 public:
 	// Used by GUI
+	static char *ReadFile(ZipArchive* package, std::string filename);
 	static int LoadPackage(std::string name, std::string package, std::string startpage);
 	static PageSet* SelectPackage(std::string name);
 	static int ReloadPackage(std::string name, std::string package);
@@ -157,6 +158,7 @@ public:
 	static xml_node<>* FindStyle(std::string name);
 
 protected:
+	static char *ReadFileImpl(ZipArchive* package, std::string filename);
 	static PageSet* FindPackage(std::string name);
 
 protected:

@@ -22,8 +22,12 @@ try:
   import Image
   import PngImagePlugin
 except ImportError:
-  print "This script requires the Python Imaging Library to be installed."
-  sys.exit(1)
+  try:
+    import PIL.Image as Image
+    import PIL.PngImagePlugin as PngImagePlugin
+  except ImportError:
+    print "This script requires the Python Imaging Library to be installed."
+    sys.exit(1)
 
 frames = [Image.open(fn).convert("RGB") for fn in sys.argv[1:-1]]
 assert len(frames) > 0, "Must have at least one input frame."

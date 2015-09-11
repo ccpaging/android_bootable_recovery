@@ -29,8 +29,12 @@ try:
   import Image
   import PngImagePlugin
 except ImportError:
-  print("This script requires the Python Imaging Library to be installed.")
-  sys.exit(1)
+  try:
+    import PIL.Image as Image
+    import PIL.PngImagePlugin as PngImagePlugin
+  except ImportError:
+    print("This script requires the Python Imaging Library to be installed.")
+    sys.exit(1)
 
 
 def interlace(output, inputs):

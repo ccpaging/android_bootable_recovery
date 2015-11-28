@@ -20,6 +20,21 @@ ifeq ($(TW_USE_TOOLBOX), true)
 
 LOCAL_PATH := external/toybox
 
+common_cflags := \
+    -std=c99 \
+    -Os \
+    -Wno-char-subscripts \
+    -Wno-sign-compare \
+    -Wno-string-plus-int \
+    -Wno-uninitialized \
+    -Wno-unused-parameter \
+    -funsigned-char \
+    -ffunction-sections -fdata-sections \
+    -fno-asynchronous-unwind-tables \
+
+toybox_version := $(shell git -C $(LOCAL_PATH) rev-parse --short=12 HEAD 2>/dev/null)-android
+common_cflags  += -DTOYBOX_VERSION='"$(toybox_version)"'
+
 #
 # To update:
 #
@@ -29,8 +44,8 @@ LOCAL_PATH := external/toybox
 #  git merge toybox/master
 #  mm -j32
 #  # (Make any necessary Android.mk changes and test the new toybox.)
+#  repo upload .
 #  git push aosp HEAD:master  # Push directly, avoiding gerrit.
-#  git push aosp HEAD:refs/for/master  # Push to gerrit.
 #
 #  # Now commit any necessary Android.mk changes like normal:
 #  repo start post-sync .
@@ -59,6 +74,7 @@ LOCAL_SRC_FILES := \
     lib/lib.c \
     lib/llist.c \
     lib/net.c \
+    lib/password.c \
     lib/portability.c \
     lib/xwrap.c \
     main.c \
@@ -90,13 +106,16 @@ LOCAL_SRC_FILES := \
     toys/other/clear.c \
     toys/other/dos2unix.c \
     toys/other/fallocate.c \
+    toys/other/flock.c \
     toys/other/free.c \
     toys/other/freeramdisk.c \
     toys/other/fsfreeze.c \
     toys/other/help.c \
+    toys/other/hwclock.c \
     toys/other/ifconfig.c \
     toys/other/inotifyd.c \
     toys/other/insmod.c \
+    toys/other/ionice.c \
     toys/other/losetup.c \
     toys/other/lsattr.c \
     toys/other/lsmod.c \
@@ -112,8 +131,10 @@ LOCAL_SRC_FILES := \
     toys/other/pmap.c \
     toys/other/printenv.c \
     toys/other/pwdx.c \
+    toys/other/readahead.c \
     toys/other/readlink.c \
     toys/other/realpath.c \
+    toys/other/reset.c \
     toys/other/rev.c \
     toys/other/rfkill.c \
     toys/other/rmmod.c \
@@ -127,22 +148,34 @@ LOCAL_SRC_FILES := \
     toys/other/taskset.c \
     toys/other/timeout.c \
     toys/other/truncate.c \
+    toys/other/uptime.c \
     toys/other/usleep.c \
     toys/other/vconfig.c \
     toys/other/vmstat.c \
     toys/other/which.c \
+    toys/other/xxd.c \
     toys/other/yes.c \
+    toys/pending/arp.c \
     toys/pending/dd.c \
+    toys/pending/diff.c \
     toys/pending/expr.c \
-    toys/pending/hwclock.c \
+    toys/pending/fdisk.c \
+    toys/pending/ftpget.c \
+    toys/pending/host.c \
+    toys/pending/lsof.c \
     toys/pending/more.c \
-    toys/pending/pgrep.c \
     toys/pending/netstat.c \
+    toys/pending/pgrep.c \
+    toys/pending/resize.c \
     toys/pending/route.c \
     toys/pending/tar.c \
+    toys/pending/telnet.c \
+    toys/pending/test.c \
     toys/pending/top.c \
     toys/pending/tr.c \
     toys/pending/traceroute.c \
+    toys/pending/watch.c \
+    toys/pending/xzcat.c \
     toys/posix/basename.c \
     toys/posix/cal.c \
     toys/posix/cat.c \
@@ -178,6 +211,7 @@ LOCAL_SRC_FILES := \
     toys/posix/paste.c \
     toys/posix/patch.c \
     toys/posix/printf.c \
+    toys/posix/ps.c \
     toys/posix/pwd.c \
     toys/posix/renice.c \
     toys/posix/rm.c \
@@ -196,24 +230,16 @@ LOCAL_SRC_FILES := \
     toys/posix/uname.c \
     toys/posix/uniq.c \
     toys/posix/wc.c \
-    toys/posix/xargs.c \
+    toys/posix/xargs.c
 
-LOCAL_CFLAGS += \
-    -std=c99 \
-    -Os \
-    -Wno-char-subscripts \
-    -Wno-sign-compare \
-    -Wno-string-plus-int \
-    -Wno-uninitialized \
-    -Wno-unused-parameter \
-    -funsigned-char \
-    -ffunction-sections -fdata-sections \
-    -fno-asynchronous-unwind-tables \
-
-toybox_version := $(shell git -C $(LOCAL_PATH) rev-parse --short=12 HEAD 2>/dev/null)-android
-LOCAL_CFLAGS += -DTOYBOX_VERSION='"$(toybox_version)"'
-
+LOCAL_CFLAGS := $(common_cflags)
 LOCAL_CLANG := true
+
+# This doesn't actually prevent us from dragging in libc++ at runtime
+# because libnetd_client.so is C++.
+LOCAL_CXX_STL := none
+
+LOCAL_C_INCLUDES += bionic/libc/dns/include
 
 LOCAL_SHARED_LIBRARIES := libcutils libselinux
 
@@ -230,12 +256,15 @@ LOCAL_MODULE_TAGS := optional
 
 ALL_TOOLS := \
     acpi \
+    arp \
+    base64 \
     basename \
     blkid \
     blockdev \
     bzcat \
     cal \
     cat \
+    chattr \
     chcon \
     chgrp \
     chmod \
@@ -243,66 +272,105 @@ ALL_TOOLS := \
     chroot \
     cksum \
     clear \
-    comm \
     cmp \
+    comm \
     cp \
     cpio \
     cut \
     date \
+    dd \
+    df \
+    diff \
     dirname \
     dmesg \
     dos2unix \
+    du \
     echo \
+    egrep \
     env \
     expand \
     expr \
     fallocate \
     false \
+    fdisk \
+    fgrep \
     find \
+    flock \
     free \
+    freeramdisk \
+    fsfreeze \
+    fstype \
+    ftpget \
+    ftpput \
     getenforce \
     getprop \
+    grep \
     groups \
     head \
+    help \
+    host \
     hostname \
     hwclock \
     id \
     ifconfig \
     inotifyd \
     insmod \
+    install \
+    ionice \
+    iorenice \
     kill \
-    load_policy \
+    killall \
     ln \
+    load_policy \
     logname \
     losetup \
+    ls \
+    lsattr \
     lsmod \
+    lsof \
     lsusb \
+    makedevs \
     md5sum \
     mkdir \
+    mkfifo \
     mknod \
     mkswap \
     mktemp \
     modinfo \
     more \
+    mount \
     mountpoint \
     mv \
+    nbd-client \
+    nc \
+    netcat \
     netstat \
     nice \
     nl \
     nohup \
+    nproc \
     od \
+    partprobe \
     paste \
     patch \
     pgrep \
     pidof \
+    pivot_root \
     pkill \
     pmap \
     printenv \
     printf \
     pwd \
+    pwdx \
+    readahead \
     readlink \
     realpath \
+    renice \
+    reset \
+    resize \
     restorecon \
+    rev \
+    rfkill \
     rm \
     rmdir \
     rmmod \
@@ -321,6 +389,7 @@ ALL_TOOLS := \
     strings \
     swapoff \
     swapon \
+    switch_root \
     sync \
     sysctl \
     tac \
@@ -328,22 +397,33 @@ ALL_TOOLS := \
     tar \
     taskset \
     tee \
+    telnet \
+    test \
     time \
     timeout \
+    top \
     touch \
     tr \
+    traceroute \
+    traceroute6 \
     true \
     truncate \
+    tty \
     umount \
     uname \
     uniq \
     unix2dos \
+    uptime \
     usleep \
+    vconfig \
     vmstat \
+    watch \
     wc \
     which \
     whoami \
     xargs \
+    xxd \
+    xzcat \
     yes \
 
 # Install the symlinks.

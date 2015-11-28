@@ -451,7 +451,6 @@ endif
 
 include $(BUILD_EXECUTABLE)
 
-ifneq ($(TW_USE_TOOLBOX), true)
 include $(CLEAR_VARS)
 # Create busybox symlinks... gzip and gunzip are excluded because those need to link to pigz instead
 BUSYBOX_LINKS := $(shell cat external/busybox/busybox-full.links)
@@ -493,7 +492,6 @@ ALL_DEFAULT_INSTALLED_MODULES += $(RECOVERY_BUSYBOX_SYMLINKS)
 endif
 include $(BUILD_PHONY_PACKAGE)
 RECOVERY_BUSYBOX_SYMLINKS :=
-endif # !TW_USE_TOOLBOX
 
 # All the APIs for testing
 include $(CLEAR_VARS)

@@ -87,6 +87,7 @@ public:
 
 	Page* FindPage(std::string name);
 	int SetPage(std::string page);
+	std::string GetPage() const;
 	int SetOverlay(Page* page);
 	const ResourceManager* GetResources();
 

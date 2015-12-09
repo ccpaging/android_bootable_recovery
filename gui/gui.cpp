@@ -609,6 +609,7 @@ static void loopTimer(int input_timeout_ms)
 static int runPages(const char *page_name, const int stop_on_page_done)
 {
 	DataManager::SetValue("tw_page_done", 0);
+	DataManager::SetValue("tw_stop_on_page_done", stop_on_page_done);
 	DataManager::SetValue("tw_gui_done", 0);
 
 	if (page_name)

@@ -169,6 +169,7 @@ ifeq ($(TW_CUSTOM_THEME),)
     # TWRP_INCLUDE_XMLS := $(shell xmllint --xpath '/recovery/include/xmlfile/@name' $(UI_XML)|sed -n 's/[^\"]*\"\([^\"]*\)\"[^\"]*/\1\n/gp'|sort|uniq)
     # TWRP_FONTS_TTF := $(shell xmllint --xpath '/recovery/resources/font/@filename' $(UI_XML)|sed -n 's/[^\"]*\"\([^\"]*\)\"[^\"]*/\1\n/gp'|sort|uniq)niq)
 else
+    TWRP_RES :=
     TWRP_THEME_LOC := $(TW_CUSTOM_THEME)
     ifeq ($(wildcard $(TWRP_THEME_LOC)/ui.xml),)
         $(warning $(TW_CUSTOM_THEME_WARNING_MSG))
@@ -181,7 +182,9 @@ TWRP_RES += $(TW_ADDITIONAL_RES)
 TWRP_RES_GEN := $(intermediates)/twrp
 $(TWRP_RES_GEN):
 	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)$(TWRES_PATH)
+ifneq ($(TWRP_RES),)
 	cp -fr $(TWRP_RES) $(TARGET_RECOVERY_ROOT_OUT)$(TWRES_PATH)
+endif
 	cp -fr $(TWRP_THEME_LOC)/* $(TARGET_RECOVERY_ROOT_OUT)$(TWRES_PATH)
 
 LOCAL_GENERATED_SOURCES := $(TWRP_RES_GEN)

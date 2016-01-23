@@ -156,6 +156,7 @@ else
     endif
 endif
 else
+    TWRP_RES :=
     TWRP_THEME_LOC := $(TW_CUSTOM_THEME)
 endif
 TWRP_RES += $(TW_ADDITIONAL_RES)
@@ -169,7 +170,9 @@ endif
 
 $(TWRP_RES_GEN):
 	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)$(TWRES_PATH)
+ifneq ($(TWRP_RES),)
 	cp -fr $(TWRP_RES) $(TARGET_RECOVERY_ROOT_OUT)$(TWRES_PATH)
+endif
 	cp -fr $(TWRP_THEME_LOC)/* $(TARGET_RECOVERY_ROOT_OUT)$(TWRES_PATH)
 	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/sbin/
 ifneq ($(TW_USE_TOOLBOX), true)

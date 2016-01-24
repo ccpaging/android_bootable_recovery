@@ -32,6 +32,7 @@
 
 		<!-- GUI XML strings -->
 		<string name="twrp_header">Team Win Recovery Project</string>
+		<string name="twrp_td_header">TWRP v%tw_version% for MI3TD</string>
 		<string name="twrp_watch_header">TWRP %tw_version%</string>
 		<string name="cpu_temp">CPU: %tw_cpu_temp% &#xB0;C</string>
 		<string name="battery_pct">Battery: %tw_battery%</string>
@@ -672,5 +673,6 @@
 		<string name="adbbackup_control_error">Cannot write to adb control channel</string>
 		<string name="twrp_adbbu_option">--twrp option is required to enable twrp adb backup</string>
 		<string name="partition_not_found">path: {1} not found in partititon list</string>
+		<string name="active_system">System:</string>
 	</resources>
 </language>

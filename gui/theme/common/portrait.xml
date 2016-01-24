@@ -171,6 +171,13 @@
 		<page name="main2">
 			<template name="page"/>
 
+			<action>
+				<condition var1="tw_language_selected" op="!=" var2="1" />
+				<actions>
+					<action function="overlay">select_language</action>
+				</actions>
+			</action>
+
 			<text style="text_l">
 				<placement x="%col1_x_header%" y="%row3_header_y%"/>
 				<text>{@twrp_td_header=TWRP v%tw_version% for MI3TD}</text>
@@ -3427,7 +3434,10 @@
 			<button style="main_button_half_height">
 				<placement x="%center_x%" y="%row21a_y%"/>
 				<text>{@set_language_btn=Set Language}</text>
-				<action function="setlanguage"></action>
+				<actions>
+					<action function="set">property.user.language=%tw_language%</action>
+					<action function="setlanguage"></action>
+				</actions>
 			</button>
 
 			<action>
@@ -5079,6 +5089,8 @@
 				<text>{@ok_btn=OK}</text>
 				<actions>
 					<action function="overlay"/>
+					<action function="set">tw_language_selected=1</action>
+					<action function="set">property.user.language=%tw_language%</action>
 					<action function="setlanguage"></action>
 				</actions>
 			</button>

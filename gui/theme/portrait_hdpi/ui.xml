@@ -221,6 +221,7 @@
 		<variable name="pattern_dot_dia" value="32"/>
 		<variable name="pattern_line_w" value="12"/>
 		<variable name="pattern_size" value="828"/>
+		<variable name="activesystem_color" value="#EEEEEE" />
 	</variables>
 
 	<mousecursor>
@@ -279,6 +280,27 @@
 				<placement x="%center_x%" y="%row1_header_y%" placement="5"/>
 				<text>%tw_time%</text>
 			</text>
+
+			<action>
+				<condition var1="property.dualboot.dualdata" op="=" var2="1" />
+				<action function="set">text_dualboot.dualdatamark=+</action>
+			</action>
+
+			<action>
+				<condition var1="property.dualboot.dualdata" op="!=" var2="1" />
+				<action function="set">text_dualboot.dualdatamark=</action>
+			</action>
+
+			<button style="activesystem_button">
+				<placement x="830" y="%row2_header_y%" w="250" h="%tab_height%"/>
+				<conditions>
+					<condition var1="property.ro.tw_has_dualboot" var2="1" />
+					<condition var1="tw_busy" var2="0" />
+					<condition var1="tw_stop_on_page_done" op="!=" var2="1" />
+				</conditions>
+				<text>{@active_system=System:} %property.dualboot.system%%text_dualboot.dualdatamark%</text>
+				<action function="page">switchsystem</action>
+			</button>
 
 			<text color="%text_color%">
 				<conditions>

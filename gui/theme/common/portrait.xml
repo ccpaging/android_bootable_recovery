@@ -74,6 +74,11 @@
 			<font resource="font_s" color="%text_button_color%"/>
 		</style>
 
+		<style name="activesystem_button">
+			<style name="tab"/>
+			<font resource="font_m" color="%text_button_color%"/>
+		</style>
+
 		<style name="console">
 			<fastscroll rectcolor="%accent_color%" w="%fastscroll_w%" rectw="%fastscroll_rectw%" recth="%fastscroll_recth%"/>
 			<color foreground="%text_color%" background="%background_color%" scroll="%background_color%"/>
@@ -168,7 +173,7 @@
 
 			<text style="text_l">
 				<placement x="%col1_x_header%" y="%row3_header_y%"/>
-				<text>{@twrp_header=Team Win Recovery Project}</text>
+				<text>{@twrp_td_header=TWRP v%tw_version% for MI3TD}</text>
 			</text>
 
 			<text style="text_m">
@@ -922,6 +927,40 @@
 		</page>
 
 		<page name="rebootcheck">
+			<action>
+				<condition var1="property.ro.tw_has_dualboot" var2="1" />
+				<action function="page">installpatch</action>
+			</action>
+
+			<action>
+				<condition var1="property.ro.tw_has_dualboot" op="!=" var2="1" />
+				<action function="page">rebootcheck_orig</action>
+			</action>
+		</page>
+
+		<page name="installpatch">
+			<template name="page"/>
+
+			<action type="text">
+				<placement x="%center_x%" y="%row1_y%" placement="5" />
+				<text>Installing dual boot/data patch ...</text>
+			</action>
+
+			<template name="console" />
+
+			<template name="progress_bar" />
+
+			<action>
+				<condition var1="tw_operation_state" var2="1" />
+				<action function="page">rebootcheck_orig</action>
+			</action>
+
+			<action>
+				<action function="cmd">/sbin/dualboot -l installpatch</action>
+			</action>
+		</page>
+
+		<page name="rebootcheck_orig">
 			<action>
 				<condition var1="tw_backup_system_size" op="&gt;=" var2="%tw_min_system%"/>
 				<action function="page">appcheck</action>
@@ -2760,7 +2799,7 @@
 			<button style="main_button">
 				<condition var1="tw_reboot_system" var2="1"/>
 				<placement x="%indent%" y="%row2a_y%"/>
-				<text>{@rb_system_btn=System}</text>
+				<text>{@rb_system_btn=System} %property.dualboot.system%</text>
 				<actions>
 					<action function="set">tw_back=reboot</action>
 					<action function="page">reboot_system_routine</action>
@@ -2768,8 +2807,15 @@
 			</button>
 
 			<button style="main_button">
+				<condition var1="property.ro.tw_has_dualboot" var2="1" />
+				<placement x="%center_x%" y="%row2a_y%" />
+				<text>{@rb_switch_system=Switch System}</text>
+				<action function="page">switchsystem</action>
+			</button>
+
+			<button style="main_button">
 				<condition var1="tw_reboot_poweroff" var2="1"/>
-				<placement x="%center_x%" y="%row2a_y%"/>
+				<placement x="%center_x%" y="%row13a_y%"/>
 				<text>{@rb_poweroff_btn=Power Off}</text>
 				<actions>
 					<action function="set">tw_back=reboot</action>
@@ -3460,7 +3506,7 @@
 				<text>{@part_sd_btn=Partition SD Card}</text>
 				<actions>
 					<action function="set">partitionlisterror=0</action>
-					<action function="page">partsdcardsel</action>
+					<action function="page">partsdcardload</action>
 				</actions>
 			</button>
 
@@ -3585,6 +3631,23 @@
 			</action>
 		</page>
 
+		<page name="partsdcardload">
+			<action>
+				<actions>
+					<action function="set">tw_back=advanced</action>
+					<action function="set">tw_action=cmd</action>
+					<action function="set">tw_action_param=/sbin/repartition -l loadsize</action>
+					<action function="set">tw_has_action2=1</action>
+					<action function="set">tw_action2=page</action>
+					<action function="set">tw_action2_param=partsdcard</action>
+					<action function="set">tw_action_text1={@partition_load=Loading Partition &amp; Filesystem info...}</action>
+					<action function="set">tw_action_text2={@partition_load2=This will take a few seconds.}</action>
+					<action function="set">tw_complete_text1={@partition_load_complete=Partitioning Complete}</action>
+					<action function="page">action_page</action>
+				</actions>
+			</action>
+		</page>
+
 		<page name="partsdcard">
 			<template name="page"/>
 
@@ -3598,6 +3661,15 @@
 				<text>{@part_sd_hdr=Partition SD Card}</text>
 			</text>
 
+			<!-- initialize -->
+			<action>
+				<actions>
+					<action function="set">repartition_data_size=%property.partition.data_size%</action>
+					<action function="set">repartition_storage_size=%property.partition.datastorage_size%</action>
+					<action function="compute">repartition_storage_size-%repartition_data_size%</action>
+				</actions>
+			</action>
+
 			<text style="text_m_fail">
 				<placement x="%center_x%" y="%row2_y%" placement="5"/>
 				<text>{@part_sd_lose=You will lose all files on your SD card!}</text>
@@ -3610,79 +3682,73 @@
 
 			<text style="text_m_accent">
 				<placement x="%center_x%" y="%row5_y%" placement="5"/>
-				<text>{@part_sd_ext_sz=EXT Size:}</text>
+				<text>{@part_data_size=Data Size:}</text>
 			</text>
 
 			<text style="text_m">
 				<placement x="%center_x%" y="%row6a_y%" placement="5"/>
-				<text>%tw_sdext_size%</text>
+				<text>%repartition_data_size%MiB</text>
 			</text>
 
+			<!-- minus -->
 			<button style="button_quarter_width">
 				<placement x="%indent%" y="%row6_y%"/>
 				<text>{@part_sd_m=-}</text>
-				<action function="addsubtract">tw_sdext_size-256</action>
+				<actions>
+					<action function="compute">repartition_data_size-128</action>
+					<action function="set">repartition_storage_size=%property.partition.datastorage_size%</action>
+					<action function="compute">repartition_storage_size-%repartition_data_size%</action>
+				</actions>
 			</button>
 
+			<!-- plus -->
 			<button style="button_quarter_width">
 				<placement x="%btn4_col4_x%" y="%row6_y%"/>
 				<text>{@part_sd_p=+}</text>
-				<action function="addsubtract">tw_sdext_size+256</action>
+				<actions>
+					<action function="compute">repartition_storage_size-128</action>
+					<action function="set">repartition_data_size=%property.partition.datastorage_size%</action>
+					<action function="compute">repartition_data_size-%repartition_storage_size%</action>
+				</actions>
 			</button>
 
 			<text style="text_m_accent">
 				<placement x="%center_x%" y="%row9_y%" placement="5"/>
-				<text>{@part_sd_swap_sz=Swap Size:}</text>
+				<text>{@part_storage_size=Storage(SD) size:}</text>
 			</text>
 
 			<text style="text_m">
 				<placement x="%center_x%" y="%row10a_y%" placement="5"/>
-				<text>%tw_swap_size%</text>
+				<text>%repartition_storage_size%MiB</text>
 			</text>
 
 			<button style="button_quarter_width">
 				<placement x="%indent%" y="%row10_y%"/>
-				<text>{@part_sd_m=-}</text>
-				<action function="addsubtract">tw_swap_size-64</action>
+				<text>{@part_merge=Merge}</text>
+				<actions>
+					<action function="set">repartition_storage_size=0</action>
+					<action function="set">repartition_data_size=%property.partition.datastorage_size%</action>
+				</actions>
 			</button>
 
 			<button style="button_quarter_width">
 				<placement x="%btn4_col4_x%" y="%row10_y%"/>
-				<text>{@part_sd_p=+}</text>
-				<action function="addsubtract">tw_swap_size+64</action>
-			</button>
-
-			<text style="text_m_accent">
-				<placement x="%center_x%" y="%row13_y%" placement="5"/>
-				<text>{@file_system=File System:}</text>
-			</text>
-
-			<text style="text_m">
-				<placement x="%center_x%" y="%row14a_y%" placement="5"/>
-				<text>%tw_sdpart_file_system%</text>
-			</text>
-
-			<button style="button_quarter_width">
-				<placement x="%indent%" y="%row14_y%"/>
-				<text>EXT3</text>
-				<action function="set">tw_sdpart_file_system=ext3</action>
-			</button>
-
-			<button style="button_quarter_width">
-				<placement x="%btn4_col4_x%" y="%row14_y%"/>
-				<text>EXT4</text>
-				<action function="set">tw_sdpart_file_system=ext4</action>
+				<text>{@default=Default}</text>
+				<actions>
+					<action function="set">repartition_data_size=3758</action>
+					<action function="set">repartition_storage_size=%property.partition.datastorage_size%</action>
+					<action function="compute">repartition_storage_size-%repartition_data_size%</action>
+				</actions>
 			</button>
 
 			<slider>
 				<text>{@swipe_part_sd=Swipe to Partition}</text>
 				<action function="page">partsdcardaction</action>
 				<actions>
-					<action function="set">tw_back=partsdcard</action>
-					<action function="set">tw_action=partitionsd</action>
-					<action function="set">tw_has_action2=1</action>
-					<action function="set">tw_action2=set</action>
-					<action function="set">tw_action2_param=tw_zip_location=/sdcard</action>
+					<action function="set">tw_back=partsdcardload</action>
+					<action function="set">tw_action=cmd</action>
+					<action function="set">tw_action_param=/sbin/repartition -l resize %repartition_data_size%</action>
+					<action function="set">tw_has_action2=0</action>
 					<action function="set">tw_action_text1={@partitioning_sd=Partitioning SD Card...}</action>
 					<action function="set">tw_action_text2={@partitioning_sd2=This will take a few minutes.}</action>
 					<action function="set">tw_complete_text1={@part_sd_complete=Partitioning Complete}</action>
@@ -3699,7 +3765,7 @@
 				<touch key="back"/>
 				<actions>
 					<action function="set">partitionlisterror=0</action>
-					<action function="page">partsdcardsel</action>
+					<action function="page">advanced</action>
 				</actions>
 			</action>
 		</page>
@@ -3767,6 +3833,142 @@
 			<action>
 				<touch key="back"/>
 				<action function="page">advanced</action>
+			</action>
+		</page>
+
+		<page name="switchsystem">
+			<template name="page"/>
+
+			<text style="text_l">
+				<placement x="%col1_x_header%" y="%row3_header_y%"/>
+				<text>{@reboot_hdr=Reboot}</text>
+			</text>
+
+			<text style="text_m">
+				<placement x="%col1_x_header%" y="%row4_header_y%"/>
+				<text>{@switchsystem_hdr=Switch Active System}</text>
+			</text>
+
+			<action>
+				<condition var1="property.dualboot.system" op="!=" var2="2"/>
+				<actions>
+					<action function="set">text_dualboot.system1=System 1 (Active)</action>
+					<action function="set">text_dualboot.system2=System 2</action>
+				</actions>
+			</action>
+
+			<action>
+				<condition var1="property.dualboot.system" op="=" var2="2"/>
+				<actions>
+					<action function="set">text_dualboot.system1=System 1</action>
+					<action function="set">text_dualboot.system2=System 2 (Active)</action>
+				</actions>
+			</action>
+
+			<text style="text_m">
+				<placement x="%indent%" y="%row2_y%"/>
+				<text>Dual boot supported. Press button to switch active system.</text>
+			</text>
+
+			<text style="text_m">
+				<placement x="%indent%" y="%row3_y%"/>
+				<text>Only active "boot" and "system" partition can be operated.</text>
+			</text>
+
+			<text style="text_m">
+				<placement x="%indent%" y="%row4_y%"/>
+				<text>If partition table is changed (using parted or fdisk etc),</text>
+			</text>
+
+			<text style="text_m">
+				<placement x="%indent%" y="%row5_y%"/>
+				<text>please reselect active system.</text>
+			</text>
+
+			<button style="main_button">
+				<placement x="%indent%" y="%row6a_y%"/>
+				<text>%text_dualboot.system1%</text>
+				<actions>
+					<action function="set">property.dualboot.system=1</action>
+					<action function="set">tw_back=switchsystem</action>
+					<action function="set">tw_action=cmd</action>
+					<action function="set">tw_action_param=/sbin/dualboot -l save</action>
+					<action function="set">tw_has_action2=0</action>
+					<action function="set">tw_action_text1=Switching to System-1 ...</action>
+					<action function="set">tw_action_text2=</action>
+					<action function="set">tw_complete_text1=System Switched</action>
+					<action function="page">action_page</action>
+				</actions>
+			</button>
+
+			<button style="main_button">
+				<placement x="%center_x%" y="%row6a_y%"/>
+				<text>%text_dualboot.system2%</text>
+				<actions>
+					<action function="set">property.dualboot.system=2</action>
+					<action function="set">tw_back=switchsystem</action>
+					<action function="set">tw_action=cmd</action>
+					<action function="set">tw_action_param=/sbin/dualboot -l save</action>
+					<action function="set">tw_has_action2=0</action>
+					<action function="set">tw_action_text1=Switching to System-2 ...</action>
+					<action function="set">tw_action_text2=</action>
+					<action function="set">tw_complete_text1=System Switched</action>
+					<action function="page">action_page</action>
+				</actions>
+			</button>
+
+			<text style="text_m">
+				<placement x="%indent%" y="%row14_y%"/>
+				<text>Dual data supported. Press enable/disable button.</text>
+			</text>
+
+			<text style="text_m">
+				<placement x="%indent%" y="%row15_y%"/>
+				<text>Switch to corresponding system before enabling dual data.</text>
+			</text>
+
+			<button style="main_button">
+				<condition var1="property.dualboot.dualdata" op="!=" var2="1"/>
+				<placement x="%center_x%" y="%row16a_y%"/>
+				<text>Dual Data: Disabled</text>
+				<actions>
+					<action function="set">tw_back=switchsystem</action>
+					<action function="set">tw_action=cmd</action>
+					<action function="set">tw_action_param=/sbin/dualboot -l enabledualdata</action>
+					<action function="set">tw_has_action2=0</action>
+					<action function="set">tw_action_text1=Enabling Dual Data ...</action>
+					<action function="set">tw_action_text2=</action>
+					<action function="set">tw_complete_text1=Dual data enabled</action>
+					<action function="set">tw_slider_text=Swipe to Enable Dual Data</action>
+					<action function="page">confirm_action</action>
+				</actions>
+			</button>
+
+			<button style="main_button">
+				<condition var1="property.dualboot.dualdata" op="=" var2="1"/>
+				<placement x="%center_x%" y="%row16a_y%"/>
+				<text>Dual Data: Enabled</text>
+				<actions>
+					<action function="set">tw_back=switchsystem</action>
+					<action function="set">tw_action=cmd</action>
+					<action function="set">tw_action_param=/sbin/dualboot -l disabledualdata</action>
+					<action function="set">tw_has_action2=0</action>
+					<action function="set">tw_action_text1=Disabling Dual Data ...</action>
+					<action function="set">tw_action_text2=</action>
+					<action function="set">tw_complete_text1=Dual data disabled</action>
+					<action function="set">tw_slider_text=Swipe to Disable Dual Data</action>
+					<action function="page">confirm_action</action>
+				</actions>
+			</button>
+
+			<action>
+				<touch key="home" />
+				<action function="page">main</action>
+			</action>
+
+			<action>
+				<touch key="back" />
+				<action function="page">reboot</action>
 			</action>
 		</page>
 

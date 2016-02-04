@@ -694,5 +694,26 @@
 		<string name="include_kernel_log">Include Kernel Log</string>
 		<string name="unable_set_boot_slot">Error changing bootloader boot slot to {1}</string>
 		<string name="active_system">System:</string>
+		<string name="part_data_size">Data Size</string>
+		<string name="part_storage_size">Storage(SD) Size</string>
+		<string name="part_merge">Merge</string>
+		<string name="default">Default</string>
+		<string name="switchsystem_hdr">Switch Active System</string>
+		<string name="system_1">System-1</string>
+		<string name="system_2">System-2</string>
+		<string name="dualboot_row1">Dual boot supported. Press button to switch active system.}</string>
+		<string name="dualboot_row2">Only active "boot" and "system" partition can be operated.}</string>
+		<string name="dualboot_row3">If partition table is changed (using parted or fdisk etc),}</string>
+		<string name="dualboot_row4">please reselect active system.}</string>
+		<string name="system_1_active">System-1 (Active)</string>
+		<string name="system_2_active">System-2 (Active)</string>
+		<string name="switching_to_system_1">Switching to System-1 ...</string>
+		<string name="switching_to_system_2">Switching to System-2 ...</string>
+		<string name="system_switched">System Switched</string>
+		<string name="dualdata_diasbled">Dual Data: Disabled</string>
+		<string name="dualdata_enabled">Dual Data: Enabled</string>
+		<string name="dualdata_row1">Dual data supported. Press enable/disable button.</string>
+		<string name="dualdata_row2">Switch to corresponding system before enabling dual data.</string>
+		<string name="rb_switch_system">Switch System</string>
 	</resources>
 </language>

@@ -672,5 +672,26 @@
 		<string name="adbbackup_control_error">无法写入 ADB 控制通道</string>
 		<string name="twrp_adbbu_option">--必须启用 TWRP 选项 TWRP ADB 备份</string>
 		<string name="partition_not_found">在分区表里找不到不到路径</string>
+		<string name="part_data_size">Data 大小</string>
+		<string name="part_storage_size">存储(SD) 大小</string>
+		<string name="part_merge">合并</string>
+		<string name="default">默认</string>
+		<string name="switchsystem_hdr">切换当前系统</string>
+		<string name="system_1">系统-1</string>
+		<string name="system_2">系统-2</string>
+		<string name="dualboot_row1">支持双系统引导。请点击按钮切换系统。</string>
+		<string name="dualboot_row2">只有当前 "boot" 和 "system" 分区可被操作。</string>
+		<string name="dualboot_row3">如果分区表被更改 (使用 parted 或 fdisk 等)，</string>
+		<string name="dualboot_row4">请重新点击当前系统。</string>
+		<string name="system_1_active">系统-1 (当前)</string>
+		<string name="system_2_active">系统-2 (当前)</string>
+		<string name="switching_to_system_1">正在切换到 '系统-1' ...</string>
+		<string name="switching_to_system_2">正在切换到 '系统-2' ...</string>
+		<string name="system_switched">系统切换完成</string>
+		<string name="dualdata_diasbled">双数据: 已禁用</string>
+		<string name="dualdata_enabled">双数据: 已启用</string>
+		<string name="dualdata_row1">支持双系统数据共存。请使用开启和禁用的按钮。</string>
+		<string name="dualdata_row2">在开启双 Data 之前，请先切换到相应的系统。</string>
+		<string name="rb_switch_system">切换系统</string>
 	</resources>
 </language>

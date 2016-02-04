@@ -254,8 +254,8 @@
 		<string name="confirm_hdr">确认</string>
 		<string name="mount_hdr">挂载分区</string>
 		<string name="mount_sel_part">选择要挂载的分区：</string>
-		<string name="mount_sys_ro_chk">挂载 system 分区只读模式</string>
-		<string name="mount_sys_ro_s_chk">挂载 system 分区只读</string>
+		<string name="mount_sys_ro_chk">只读模式挂载 system 分区</string>
+		<string name="mount_sys_ro_s_chk">只读挂载 system</string>
 		<string name="decrypt_data_btn">解密数据</string>
 		<string name="disable_mtp_btn">关闭 MTP 模式</string>
 		<string name="enable_mtp_btn">打开 MTP 模式</string>

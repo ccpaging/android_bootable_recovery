@@ -48,6 +48,7 @@ ifeq ($(TW_USE_TOOLBOX), true)
             iftop \
             ioctl \
             log \
+            ls \
             nandread \
             newfs_msdos \
             prlimit \

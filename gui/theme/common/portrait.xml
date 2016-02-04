@@ -3515,7 +3515,7 @@
 
 			<text style="text_m_accent">
 				<placement x="%center_x%" y="%row9_y%" placement="5"/>
-				<text>{@part_storage_size=Storage(SD) size:}</text>
+				<text>{@part_storage_size=Storage(SD) Size:}</text>
 			</text>
 
 			<text style="text_m">
@@ -3653,40 +3653,40 @@
 			<action>
 				<condition var1="property.dualboot.system" op="!=" var2="2"/>
 				<actions>
-					<action function="set">text_dualboot.system1=System 1 (Active)</action>
-					<action function="set">text_dualboot.system2=System 2</action>
+					<action function="set">text_dualboot.system1={@system_1_active=System-1 (Active)}</action>
+					<action function="set">text_dualboot.system2={@system_2=System-2}</action>
 				</actions>
 			</action>
 
 			<action>
 				<condition var1="property.dualboot.system" op="=" var2="2"/>
 				<actions>
-					<action function="set">text_dualboot.system1=System 1</action>
-					<action function="set">text_dualboot.system2=System 2 (Active)</action>
+					<action function="set">text_dualboot.system1={@system_1=System-1}</action>
+					<action function="set">text_dualboot.system2={@system_2_active=System-2 (Active)}</action>
 				</actions>
 			</action>
 
 			<text style="text_m">
 				<placement x="%indent%" y="%row2_y%"/>
-				<text>Dual boot supported. Press button to switch active system.</text>
+				<text>{@dualboot_row1=Dual boot supported. Press button to switch active system.}</text>
 			</text>
 
 			<text style="text_m">
 				<placement x="%indent%" y="%row3_y%"/>
-				<text>Only active "boot" and "system" partition can be operated.</text>
+				<text>{@dualboot_row2=Only active "boot" and "system" partition can be operated.}</text>
 			</text>
 
 			<text style="text_m">
 				<placement x="%indent%" y="%row4_y%"/>
-				<text>If partition table is changed (using parted or fdisk etc),</text>
+				<text>{@dualboot_row3=If partition table is changed (using parted or fdisk etc),}</text>
 			</text>
 
 			<text style="text_m">
 				<placement x="%indent%" y="%row5_y%"/>
-				<text>please reselect active system.</text>
+				<text>{@dualboot_row4=please reselect active system.}</text>
 			</text>
 
-			<button style="main_button">
+			<button style="main_button_half_height">
 				<placement x="%indent%" y="%row6a_y%"/>
 				<text>%text_dualboot.system1%</text>
 				<actions>
@@ -3695,14 +3695,14 @@
 					<action function="set">tw_action=cmd</action>
 					<action function="set">tw_action_param=/sbin/dualboot -l save</action>
 					<action function="set">tw_has_action2=0</action>
-					<action function="set">tw_action_text1=Switching to System-1 ...</action>
+					<action function="set">tw_action_text1={@switching_to_system_1=Switching to System-1 ...}</action>
 					<action function="set">tw_action_text2=</action>
-					<action function="set">tw_complete_text1=System Switched</action>
+					<action function="set">tw_complete_text1={@system_switched=System Switched}</action>
 					<action function="page">action_page</action>
 				</actions>
 			</button>
 
-			<button style="main_button">
+			<button style="main_button_half_height">
 				<placement x="%center_x%" y="%row6a_y%"/>
 				<text>%text_dualboot.system2%</text>
 				<actions>
@@ -3711,27 +3711,27 @@
 					<action function="set">tw_action=cmd</action>
 					<action function="set">tw_action_param=/sbin/dualboot -l save</action>
 					<action function="set">tw_has_action2=0</action>
-					<action function="set">tw_action_text1=Switching to System-2 ...</action>
+					<action function="set">tw_action_text1={@switching_to_system_1=Switching to System-2 ...}</action>
 					<action function="set">tw_action_text2=</action>
-					<action function="set">tw_complete_text1=System Switched</action>
+					<action function="set">tw_complete_text1={@system_switched=System Switched}</action>
 					<action function="page">action_page</action>
 				</actions>
 			</button>
 
 			<text style="text_m">
 				<placement x="%indent%" y="%row14_y%"/>
-				<text>Dual data supported. Press enable/disable button.</text>
+				<text>{@dualdata_row1=Dual data supported. Press enable/disable button.}</text>
 			</text>
 
 			<text style="text_m">
 				<placement x="%indent%" y="%row15_y%"/>
-				<text>Switch to corresponding system before enabling dual data.</text>
+				<text>{@dualdata_row2=Switch to corresponding system before enabling dual data.}</text>
 			</text>
 
-			<button style="main_button">
+			<button style="main_button_half_height">
 				<condition var1="property.dualboot.dualdata" op="!=" var2="1"/>
 				<placement x="%center_x%" y="%row16a_y%"/>
-				<text>Dual Data: Disabled</text>
+				<text>{@dualdata_diasbled=Dual Data: Disabled}</text>
 				<actions>
 					<action function="set">tw_back=switchsystem</action>
 					<action function="set">tw_action=cmd</action>
@@ -3745,10 +3745,10 @@
 				</actions>
 			</button>
 
-			<button style="main_button">
+			<button style="main_button_half_height">
 				<condition var1="property.dualboot.dualdata" op="=" var2="1"/>
 				<placement x="%center_x%" y="%row16a_y%"/>
-				<text>Dual Data: Enabled</text>
+				<text>{@dualdata_enabled=Dual Data: Enabled}</text>
 				<actions>
 					<action function="set">tw_back=switchsystem</action>
 					<action function="set">tw_action=cmd</action>

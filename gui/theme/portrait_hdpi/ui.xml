@@ -303,16 +303,30 @@
 				<action function="set">switchsystem_enabled=1</action>
 			</action>
 
+			<action>
+				<condition var1="property.dualboot.system" op="!=" var2="2"/>
+				<actions>
+					<action function="set">text_dualboot.system_current={@system_1=System-1}</action>
+				</actions>
+			</action>
+
+			<action>
+				<condition var1="property.dualboot.system" op="=" var2="2"/>
+				<actions>
+					<action function="set">text_dualboot.system_current={@system_2=System-2}</action>
+				</actions>
+			</action>
+
 			<button style="activesystem_button">
 				<placement x="830" y="%row2_header_y%" w="250" h="%tab_height%"/>
 				<condition var1="switchsystem_enabled" op="!=" var2="1" />
-				<text>{@active_system=System:} %property.dualboot.system%%text_dualboot.dualdatamark%</text>
+				<text>%text_dualboot.system_current%%text_dualboot.dualdatamark%</text>
 			</button>
 
 			<button style="activesystem_button">
 				<placement x="830" y="%row2_header_y%" w="250" h="%tab_height%"/>
 				<condition var1="switchsystem_enabled" op="=" var2="1" />
-				<text>{@active_system=System:} %property.dualboot.system%%text_dualboot.dualdatamark%</text>
+				<text>%text_dualboot.system_current%%text_dualboot.dualdatamark%</text>
 				<action function="page">switchsystem</action>
 			</button>
 

@@ -72,6 +72,7 @@ LOCAL_SRC_FILES := \
     lib/help.c \
     lib/interestingtimes.c \
     lib/lib.c \
+    lib/linestack.c \
     lib/llist.c \
     lib/net.c \
     lib/password.c \
@@ -165,13 +166,11 @@ LOCAL_SRC_FILES := \
     toys/pending/lsof.c \
     toys/pending/more.c \
     toys/pending/netstat.c \
-    toys/pending/pgrep.c \
     toys/pending/resize.c \
     toys/pending/route.c \
     toys/pending/tar.c \
     toys/pending/telnet.c \
     toys/pending/test.c \
-    toys/pending/top.c \
     toys/pending/tr.c \
     toys/pending/traceroute.c \
     toys/pending/watch.c \

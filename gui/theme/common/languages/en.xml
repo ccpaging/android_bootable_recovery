@@ -693,7 +693,6 @@
 		<string name="copy_kernel_log">Copied kernel log to {1}</string>
 		<string name="include_kernel_log">Include Kernel Log</string>
 		<string name="unable_set_boot_slot">Error changing bootloader boot slot to {1}</string>
-		<string name="active_system">System:</string>
 		<string name="part_data_size">Data Size</string>
 		<string name="part_storage_size">Storage(SD) Size</string>
 		<string name="part_merge">Merge</string>

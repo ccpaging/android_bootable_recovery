@@ -24,6 +24,9 @@ LOCAL_CONLY_FLAGS := -Wimplicit-function-declaration
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. system/core/adb
 LOCAL_WHOLE_STATIC_LIBRARIES := libadbd
 LOCAL_SHARED_LIBRARIES := libbase liblog libcutils libc
+ifneq ($(wildcard system/core/libcrypto_utils/Android.mk),)
+    LOCAL_STATIC_LIBRARIES += libcrypto_utils_static
+endif
 
 ifeq ($(shell test $(PLATFORM_SDK_VERSION) -lt 24; echo $$?),0)
     LOCAL_C_INCLUDES += $(LOCAL_PATH)/libmincrypt/includes

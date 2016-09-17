@@ -107,6 +107,9 @@ $(inc) : $(inc_dep_file)
 
 $(call intermediates-dir-for,EXECUTABLES,updater,,,$(TARGET_PREFER_32_BIT))/updater.o : $(inc)
 LOCAL_C_INCLUDES += $(dir $(inc))
+ifneq ($(wildcard system/core/libcrypto_utils/Android.mk),)
+    LOCAL_C_INCLUDES += system/core/libcrypto_utils/include
+endif
 
 inc :=
 inc_dep_file :=

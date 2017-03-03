@@ -387,11 +387,9 @@ else
 endif
 ifneq ($(TW_USE_TOOLBOX), true)
     LOCAL_ADDITIONAL_DEPENDENCIES += busybox_symlinks
-    ifeq ($(shell test $(PLATFORM_SDK_VERSION) -lt 24; echo $$?),0)
-        LOCAL_POST_INSTALL_CMD := \
-            $(hide) mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/sbin && \
-            ln -sf /sbin/busybox $(TARGET_RECOVERY_ROOT_OUT)/sbin/sh
-    endif
+    LOCAL_POST_INSTALL_CMD := \
+        $(hide) mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/sbin && \
+        ln -sf /sbin/busybox $(TARGET_RECOVERY_ROOT_OUT)/sbin/sh
 else
     ifneq ($(wildcard external/toybox/Android.mk),)
         LOCAL_ADDITIONAL_DEPENDENCIES += toybox_symlinks
